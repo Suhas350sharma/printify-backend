@@ -40,8 +40,8 @@ const config_1 = require("./config");
 mongoose_1.default.connect(config_1.MONGO_URL);
 const userSchema = new mongoose_1.Schema({
     username: { type: String, required: true },
-    PhNo: { type: String, required: true },
-    email: { type: String, unique: true, required: true },
+    PhNo: { type: String },
+    email: { type: String, unique: true },
     password: { type: String, required: true },
     resetToken: { type: String, default: null },
     resetTokenExpiry: { type: Date, default: null },

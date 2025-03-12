@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const userController_1 = require("../controllers/userController");
+const userMiddleware_1 = require("../middlewares/userMiddleware");
 const passport_1 = __importDefault(require("passport"));
 require("../controllers/googleauth");
 const userRouter = (0, express_1.Router)();
@@ -15,13 +16,41 @@ userRouter.post("/resetpassword", userController_1.resetPassword);
 userRouter.post("/updatepassword", userController_1.updatePassword);
 userRouter.get('/auth/google', passport_1.default.authenticate('google', { scope: ['email', 'profile'] }));
 userRouter.get("/auth/google/callback", passport_1.default.authenticate('google', {
-    successRedirect: '/protected',
+    successRedirect: '/api/v1/users/protected',
     failureRedirect: '/api/v1/users/auth/google/failure'
 }));
 userRouter.get("/auth/google/failure", (req, res) => {
     res.send("failed to authenticate");
 });
-userRouter.get("/protected", (req, res) => {
+//@ts-ignore
+userRouter.get("/protected", isLoggedIn, (req, res) => {
     res.send("hello world");
+});
+//@ts-ignore
+userRouter.get("/me", userMiddleware_1.usermiddleware, (req, res) => {
+    res.send("protected routes");
+});
+function isLoggedIn(req, res, next) {
+    //@ts-ignore
+    req.user ? next() : res.status(500).json({
+        message: "You cannot access here"
+    });
+}
+userRouter.get("/logout", (req, res, next) => {
+    if (req.logout) {
+        req.logout((err) => {
+            if (err) {
+                return next(err);
+            }
+            req.session.destroy(() => {
+                res.send("good bye");
+            });
+        });
+    }
+    else {
+        res.status(400).json({
+            message: "No active sesssion found"
+        });
+    }
 });
 exports.default = userRouter;

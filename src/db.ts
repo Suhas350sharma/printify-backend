@@ -15,8 +15,8 @@ interface User{
 
 const userSchema = new Schema({
     username:{  type: String, required: true },
-    PhNo:{type: String,required: true},
-    email:{type: String, unique:true,required: true},
+    PhNo:{type: String},
+    email:{type: String, unique:true},
     password:{type:String, required:true},
     resetToken:{type:String,default:null},
     resetTokenExpiry:{type:Date,default:null},

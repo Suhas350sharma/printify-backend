@@ -15,27 +15,29 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const passport_1 = __importDefault(require("passport"));
 const passport_google_oauth20_1 = require("passport-google-oauth20");
 const db_1 = require("../db");
-const GOOGLE_CLIENT_ID = "963402508457-u58vs03gi4rp708gvted36vrogkanvf2.apps.googleusercontent.com";
-const GOOGLE_CLIENT_SECRET = "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";
+const config_1 = require("../config");
 passport_1.default.use(new passport_google_oauth20_1.Strategy({
-    clientID: GOOGLE_CLIENT_ID,
-    clientSecret: GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/api/v1/users/auth/google/callback",
+    clientID: config_1.CLIENT_ID,
+    clientSecret: config_1.CLIENT_SECRET,
+    callbackURL: config_1.CALLBACKURL,
     passReqToCallback: true
 }, function (request, accessToken, refreshToken, profile, done) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log(profile);
         try {
-            let user = yield db_1.UserModel.find({ googleId: profile.id });
+            let user = yield db_1.UserModel.findOne({ googleId: profile.id });
+            console.log(user);
             if (!user) {
                 const newuser = yield db_1.UserModel.create({
                     googleId: profile.id,
                     //@ts-ignore
                     email: profile.emails[0].value,
                     username: profile.displayName,
+                    password: "Google-oauth"
                 });
-                console.log(newuser);
                 yield newuser.save();
             }
+            //@ts-ignore
             done(null, user);
             return;
         }
