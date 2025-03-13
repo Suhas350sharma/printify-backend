@@ -18,7 +18,7 @@ try{
     console.log(decode);
     if(decode ){
        
-        req.user=(decode as any ).userId;
+        req.user=(decode as any ).id;
         next();
     }
     else{

@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const express_session_1 = __importDefault(require("express-session"));
 const passport_1 = __importDefault(require("passport"));
+const adminRoutes_1 = __importDefault(require("./routes/adminRoutes"));
 const app = (0, express_1.default)();
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, express_session_1.default)({
@@ -19,9 +20,10 @@ app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
 app.use(express_1.default.json());
 app.use("/api/v1/users", userRoutes_1.default);
+app.use("/api/v1/admin", adminRoutes_1.default);
 // app.get("/protected", (req,res)=>{
 //     res.send("hello world");
 //  })
-app.listen(3000, () => {
+app.listen(3001, () => {
     console.log('Server is running on port 3000');
 });

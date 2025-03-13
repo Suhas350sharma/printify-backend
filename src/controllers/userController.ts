@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { Uservalidaion } from "../validations/userValidation";
+import { Validation } from "../validations/userValidation";
 import { UserModel } from "../db";
 import bcrypt from 'bcryptjs';
 import { JWT_USER_SECRET } from "../config";
@@ -14,7 +14,7 @@ dotenv.config();
 export async function createUser(req: Request, res: Response): Promise<void> {
      try {
           
-          const parseData = Uservalidaion.safeParse(req.body);
+          const parseData = Validation.safeParse(req.body);
           console.log(parseData);
           if (!parseData.success) {
                res.status(400).json({ error: parseData.error });

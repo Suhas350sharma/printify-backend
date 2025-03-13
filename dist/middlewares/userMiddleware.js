@@ -16,7 +16,7 @@ function usermiddleware(req, res, next) {
         const decode = jsonwebtoken_1.default.verify(authHeader, config_1.JWT_USER_SECRET);
         console.log(decode);
         if (decode) {
-            req.user = decode.userId;
+            req.user = decode.id;
             next();
         }
         else {

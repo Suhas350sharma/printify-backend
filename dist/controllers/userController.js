@@ -28,7 +28,7 @@ dotenv_1.default.config();
 function createUser(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const parseData = userValidation_1.Uservalidaion.safeParse(req.body);
+            const parseData = userValidation_1.Validation.safeParse(req.body);
             console.log(parseData);
             if (!parseData.success) {
                 res.status(400).json({ error: parseData.error });
