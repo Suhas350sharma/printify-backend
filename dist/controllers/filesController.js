@@ -17,6 +17,7 @@ exports.processFiles = processFiles;
 const multer_1 = __importDefault(require("multer"));
 const pdf_parse_1 = __importDefault(require("pdf-parse"));
 const fs_1 = __importDefault(require("fs"));
+const printqueue_1 = require("./printqueue");
 // Temporary storage for uploaded files
 const upload = (0, multer_1.default)({ dest: "temp_uploads/" });
 exports.uploadfiles = upload.array("files");
@@ -52,6 +53,15 @@ function processFiles(req, res, next) {
                     // Calculate cost
                     const amount = countAmount(numberOfSheets, colorMode, copies);
                     totalAmount += amount;
+                    yield printqueue_1.printQueue.enqueue({
+                        filePath,
+                        options: {
+                            copies: Number(numberofcopies),
+                            colorMode,
+                            duplex: side,
+                            paperSize: papersize,
+                        },
+                    });
                     processedFiles.push({
                         filename: originalname,
                         tempPath: filePath, // Store temp path for later processing
@@ -91,7 +101,7 @@ function processFiles(req, res, next) {
         }
     });
 }
-// ✅ Function to calculate number of sheets
+//  Function to calculate number of sheets
 function countNumberOfPages(filePath, side, papersize) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -104,6 +114,9 @@ function countNumberOfPages(filePath, side, papersize) {
             }
             // Adjust for paper size
             switch (papersize) {
+                case "A4":
+                    numberOfSheets = numberOfPages;
+                    break;
                 case "1/2A4":
                     numberOfSheets = Math.ceil(numberOfSheets / 2);
                     break;
@@ -118,7 +131,7 @@ function countNumberOfPages(filePath, side, papersize) {
         }
     });
 }
-// ✅ Function to calculate total price
+//  Function to calculate total price
 function countAmount(numberOfSheets, colorMode, numberOfCopies) {
     const costPerSheet = colorMode === "color" ? 5 : 1;
     return numberOfSheets * costPerSheet * numberOfCopies;

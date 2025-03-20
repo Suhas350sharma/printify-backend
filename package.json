@@ -13,6 +13,7 @@
   "description": "",
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.0",
     "@types/express-session": "^1.18.1",
@@ -24,6 +25,7 @@
     "@types/pdf-parse": "^1.1.4",
     "axios": "^1.8.3",
     "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "db": "^6.0.3",
     "dotenv": "^16.4.7",

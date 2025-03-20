@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import multer from "multer";
 import PdfParse from "pdf-parse";
 import fs from "fs";
+import { printQueue } from "./printqueue";
 
 // Temporary storage for uploaded files
 const upload = multer({ dest: "temp_uploads/" });
@@ -47,6 +48,16 @@ export async function processFiles(req: Request, res: Response, next: NextFuncti
         const amount = countAmount(numberOfSheets, colorMode, copies);
         totalAmount += amount;
 
+        await printQueue.enqueue({ 
+          filePath,
+          options: {
+            copies: Number(numberofcopies),
+            colorMode,
+            duplex: side,
+            paperSize: papersize,
+          },
+        });
+
         processedFiles.push({
           filename: originalname,
           tempPath: filePath, // Store temp path for later processing
@@ -87,8 +98,8 @@ export async function processFiles(req: Request, res: Response, next: NextFuncti
   }
 }
 
-// ✅ Function to calculate number of sheets
-async function countNumberOfPages(filePath: string, side: string, papersize: string): Promise<number> {
+//  Function to calculate number of sheets
+async function countNumberOfPages(filePath: string, side: string, papersize: number): Promise<number> {
   try {
     const pdfData = await PdfParse(fs.readFileSync(filePath));
     let numberOfPages = pdfData.numpages || 0;
@@ -101,12 +112,13 @@ async function countNumberOfPages(filePath: string, side: string, papersize: str
 
     // Adjust for paper size
     switch (papersize) {
-      case "A4":
+      case 1:
         numberOfSheets=numberOfPages;
-      case "1/2A4":
+        break;
+      case 2:
         numberOfSheets = Math.ceil(numberOfSheets / 2);
         break;
-      case "1/4A4":
+      case 4:
         numberOfSheets = Math.ceil(numberOfSheets / 4);
         break;
     }
@@ -117,7 +129,7 @@ async function countNumberOfPages(filePath: string, side: string, papersize: str
   }
 }
 
-// ✅ Function to calculate total price
+//  Function to calculate total price
 function countAmount(numberOfSheets: number, colorMode: string, numberOfCopies: number): number {
   const costPerSheet = colorMode === "color" ? 5 : 1;
   return numberOfSheets * costPerSheet * numberOfCopies;

@@ -4,8 +4,7 @@ import session from "express-session";
 import passport from "passport";
 import adminRouter from './routes/adminRoutes';
 import FileRouter from './routes/fileRoutes';
-
-
+import cors from 'cors'
 
 const app=express();
 app.use(express.urlencoded({extended:true}))
@@ -19,7 +18,12 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(cors({
+    origin:" http://192.168.18.74:40383 ",
+    credentials:true
+}))
 app.use(express.json());
+
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/admin",adminRouter);
 app.use("/api/v1/files",FileRouter)
@@ -27,6 +31,6 @@ app.use("/api/v1/files",FileRouter)
 //     res.send("hello world");
 //  })
 
-app.listen(3000,()=>{
+app.listen(3001,()=>{
     console.log('Server is running on port 3000');
 })

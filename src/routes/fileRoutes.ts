@@ -5,6 +5,6 @@ import { processFiles, uploadfiles } from '../controllers/filesController';
 const FileRouter =Router();
 
 //@ts-ignore
-FileRouter.post("/uploadfiles",usermiddleware,uploadfiles,processFiles);
+FileRouter.post("/uploadfiles",uploadfiles,processFiles);
 
 export default FileRouter;
