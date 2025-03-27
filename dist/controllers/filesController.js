@@ -18,6 +18,7 @@ const multer_1 = __importDefault(require("multer"));
 const pdf_parse_1 = __importDefault(require("pdf-parse"));
 const fs_1 = __importDefault(require("fs"));
 const printqueue_1 = require("./printqueue");
+const db_1 = require("../db");
 // Temporary storage for uploaded files
 const upload = (0, multer_1.default)({ dest: "temp_uploads/" });
 exports.uploadfiles = upload.array("files");
@@ -62,15 +63,16 @@ function processFiles(req, res, next) {
                             paperSize: papersize,
                         },
                     });
+                    console.log("from filecontroller");
                     processedFiles.push({
                         filename: originalname,
-                        tempPath: filePath, // Store temp path for later processing
+                        documentUrl: filePath, // Store temp path for later processing
                         colorMode,
                         side,
                         papersize,
                         numberofcopies: copies,
                         numberofpages: numberOfSheets,
-                        totalprice: amount,
+                        price: amount,
                     });
                     // Delete temp file after 3 minutes
                     setTimeout(() => {
@@ -79,6 +81,22 @@ function processFiles(req, res, next) {
                                 console.error(`Error deleting file ${originalname}:`, err);
                         });
                     }, 180000); // 3 minutes
+                    // const newentry=new FilesModel({
+                    //     userId:req.user,
+                    //       files:[{
+                    //         filename: originalname,
+                    //         documentUrl: filePath, // Store temp path for later processing
+                    //         colorMode:colorMode,
+                    //         side:side,
+                    //         papersize:papersize,
+                    //         numberofcopies: copies,
+                    //         numberofpages: numberOfSheets,
+                    //         totalprice: amount,
+                    //       }]
+                    //    })
+                    //    newentry.save()
+                    //        .then(() => console.log("File entry saved successfully"))
+                    //        .catch(err => console.error("Error saving file entry:", err));
                 }
                 catch (error) {
                     errors.push({ filename: originalname, message: "Error processing PDF file" });
@@ -88,6 +106,11 @@ function processFiles(req, res, next) {
             if (processedFiles.length === 0) {
                 return res.status(400).json({ message: "No valid files processed", errors });
             }
+            const UserId = req.user || "";
+            const newEntry = new db_1.FilesModel({ userId: UserId, files: processedFiles, TotalAmount: totalAmount, TotalSheets: totalNumberOfSheets });
+            yield newEntry.save();
+            console.log("new file entry file creted for this user");
+            StoresAllFilesOfUser(UserId, processedFiles);
             res.status(200).json({
                 message: "Files processed successfully",
                 totalSheets: totalNumberOfSheets,
@@ -114,13 +137,13 @@ function countNumberOfPages(filePath, side, papersize) {
             }
             // Adjust for paper size
             switch (papersize) {
-                case "A4":
+                case 1:
                     numberOfSheets = numberOfPages;
                     break;
-                case "1/2A4":
+                case 2:
                     numberOfSheets = Math.ceil(numberOfSheets / 2);
                     break;
-                case "1/4A4":
+                case 4:
                     numberOfSheets = Math.ceil(numberOfSheets / 4);
                     break;
             }
@@ -135,4 +158,22 @@ function countNumberOfPages(filePath, side, papersize) {
 function countAmount(numberOfSheets, colorMode, numberOfCopies) {
     const costPerSheet = colorMode === "color" ? 5 : 1;
     return numberOfSheets * costPerSheet * numberOfCopies;
+}
+function StoresAllFilesOfUser(userId, processedFiles) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const existingEntry = yield db_1.UserfilesModel.findOne({ userId });
+        console.log(existingEntry);
+        if (existingEntry) {
+            existingEntry.files.push(...processedFiles);
+            yield existingEntry.save();
+            console.log("Files appended to existing entry");
+        }
+        else {
+            const newEntry = new db_1.UserfilesModel({ userId, files: processedFiles });
+            console.log(newEntry);
+            yield newEntry.save();
+            ;
+            console.log("new file Entry created");
+        }
+    });
 }

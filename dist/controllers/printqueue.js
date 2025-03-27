@@ -27,6 +27,7 @@ class PrintQueue {
             this.isProcessing = true;
             const job = this.queue.shift();
             try {
+                console.log(job.filePath);
                 yield (0, cups_1.printFile)(job.filePath, job.options);
             }
             catch (error) {

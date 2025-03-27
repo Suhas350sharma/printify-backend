@@ -30,24 +30,43 @@ const adminSchema=new Schema({
 })
 
 const filesSchema = new Schema({
-    userId:{type:ObjectId,ref:"userSchema",required:true},
+    userId:{type:ObjectId,required:true},
    files:[
     {
         filename:{type:String,required:true},
         documentUrl:{type:String,required:true},
         colorMode:{type:String,enum:["black_white","color"],required:true},
         side:{type:String,enum:["single","double"],required:true},
-        papersize:{type:String,enum:["A4,","1/2A4","1/4A4"],required:true},
+        papersize:{type:String,enum:["1","2","4"],required:true},
         numberofcopies:{type:Number,required:true},
         numberofpages:{type:Number,required:true},
-        totalprice:{type:Number,require:true},
+        price:{type:Number,require:true},
     }
-   ]
+   ],
+   TotalAmount:{type:Number,required:true},
+   TotalSheets:{type:Number,required:true}
+})
+
+const UserfilesSchema=new Schema({
+    userId:{type:ObjectId,required:true},
+    files:[
+        {
+            filename:{type:String,required:true},
+            documentUrl:{type:String,required:true},
+            colorMode:{type:String,enum:["black_white","color"],required:true},
+            side:{type:String,enum:["single","double"],required:true},
+            papersize:{type:String,enum:["1","2","4"],required:true},
+            numberofcopies:{type:Number,required:true},
+            numberofpages:{type:Number,required:true},
+            price:{type:Number,require:true},
+        }
+       ]
 })
 
 export const UserModel=model("userSchema",userSchema);
 export const AdminModel=model("adminSchema",adminSchema);
 export const FilesModel=model("filesSchema",filesSchema);
+export const UserfilesModel=model("particularuserSchema",UserfilesSchema)
 
 
 

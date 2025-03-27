@@ -13,12 +13,12 @@ try{
     if(!authHeader){
         return res.status(401).json({message:"token missing"})
     }
-    console.log(authHeader);
     const decode=jwt.verify(authHeader,JWT_USER_SECRET);
     console.log(decode);
-    if(decode ){
-       
-        req.user=(decode as any ).id;
+    console.log(decode);
+    console.log(decode);
+    if(decode){
+        req.user=(decode as any ).userId;
         next();
     }
     else{

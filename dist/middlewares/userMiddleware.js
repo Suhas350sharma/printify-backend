@@ -12,11 +12,12 @@ function usermiddleware(req, res, next) {
         if (!authHeader) {
             return res.status(401).json({ message: "token missing" });
         }
-        console.log(authHeader);
         const decode = jsonwebtoken_1.default.verify(authHeader, config_1.JWT_USER_SECRET);
         console.log(decode);
+        console.log(decode);
+        console.log(decode);
         if (decode) {
-            req.user = decode.id;
+            req.user = decode.userId;
             next();
         }
         else {

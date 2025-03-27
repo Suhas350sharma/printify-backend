@@ -16,10 +16,9 @@ exports.printFile = printFile;
 const child_process_1 = require("child_process");
 const fs_1 = __importDefault(require("fs"));
 // Universal CUPS printer name (configured in CUPS admin)
-const PRINTER_NAME = 'epson';
+const PRINTER_NAME = 'hacfy';
 function printFile(filePath, options) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log("afgdgvdav");
         return new Promise((resolve, reject) => {
             // Build CUPS command flags from options
             const flags = [
@@ -27,7 +26,7 @@ function printFile(filePath, options) {
                 `-n ${options.copies}`,
                 `-o ColorModel=${options.colorMode === 'color' ? 'RGB' : 'Black'}`,
                 `-o sides=${options.duplex === 'double' ? 'two-sided-long-edge' : 'one-sided'}`,
-                `-o media=${options.paperSize}`
+                `-o number-up=${options.paperSize}`,
             ].join(' ');
             const command = `lp ${flags} ${filePath}`;
             (0, child_process_1.exec)(command, (error, stdout) => {
@@ -37,6 +36,9 @@ function printFile(filePath, options) {
                 // Extract CUPS job ID from stdout
                 const jobId = ((_a = stdout.match(/request id is (\S+)/)) === null || _a === void 0 ? void 0 : _a[1]) || '';
                 resolve(jobId);
+                // try{
+                //   const newentry=new UserModel({})
+                // }
                 // Cleanup file after printing
                 fs_1.default.unlink(filePath, (err) => {
                     if (err)

@@ -32,6 +32,7 @@ userRouter.get("/protected", isLoggedIn, (req,res)=>{
 })
 //@ts-ignore
 userRouter.get("/me",usermiddleware, (req,res)=>{
+    console.log(req.user);
     res.send("protected routes")
 })
 

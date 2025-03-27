@@ -17,6 +17,7 @@ class PrintQueue {
     this.queue.push(job);
     this.processNext();
   }
+  
 
   private async processNext(): Promise<void> {
     if (this.isProcessing || this.queue.length === 0) return;
@@ -25,6 +26,7 @@ class PrintQueue {
     const job = this.queue.shift()!;
 
     try {
+      console.log(job.filePath);
       await printFile(job.filePath, job.options);
     } catch (error) {
       console.error('Failed job:', job.filePath, error);

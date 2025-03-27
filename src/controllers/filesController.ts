@@ -3,6 +3,7 @@ import multer from "multer";
 import PdfParse from "pdf-parse";
 import fs from "fs";
 import { printQueue } from "./printqueue";
+import { FilesModel, UserModel,UserfilesModel } from "../db";
 
 // Temporary storage for uploaded files
 const upload = multer({ dest: "temp_uploads/" });
@@ -23,13 +24,12 @@ export async function processFiles(req: Request, res: Response, next: NextFuncti
     for (const file of req.files as Express.Multer.File[]) {
       const { originalname, path: filePath } = file;
 
-      // Required fields from req.body
       const { colorMode, side, papersize, numberofcopies } = req.body;
 
       // Validate required fields
       if (!colorMode || !side || !papersize || !numberofcopies) {
         errors.push({ filename: originalname, message: "Missing required fields" });
-        continue; // Skip this file and process others
+        continue; 
       }
 
       // Convert numberofcopies to a number
@@ -60,13 +60,13 @@ export async function processFiles(req: Request, res: Response, next: NextFuncti
 
         processedFiles.push({
           filename: originalname,
-          tempPath: filePath, // Store temp path for later processing
+          documentUrl: filePath, 
           colorMode,
           side,
           papersize,
           numberofcopies: copies,
           numberofpages: numberOfSheets,
-          totalprice: amount,
+          price: amount,
         });
 
         // Delete temp file after 3 minutes
@@ -75,26 +75,48 @@ export async function processFiles(req: Request, res: Response, next: NextFuncti
             if (err) console.error(`Error deleting file ${originalname}:`, err);
           });
         }, 180000); // 3 minutes
+      // const newentry=new FilesModel({
+      //     userId:req.user,
+      //       files:[{
+      //         filename: originalname,
+      //         documentUrl: filePath, // Store temp path for later processing
+      //         colorMode:colorMode,
+      //         side:side,
+      //         papersize:papersize,
+      //         numberofcopies: copies,
+      //         numberofpages: numberOfSheets,
+      //         totalprice: amount,
+      //       }]
+      //    })
+      //    newentry.save()
+      //        .then(() => console.log("File entry saved successfully"))
+      //        .catch(err => console.error("Error saving file entry:", err));
+      
       } catch (error) {
         errors.push({ filename: originalname, message: "Error processing PDF file" });
       }
     }
-
-    // If all files had errors, return failure response
     if (processedFiles.length === 0) {
       return res.status(400).json({ message: "No valid files processed", errors });
-    }
+    } 
 
+    const UserId=req.user ||"";
+
+    const newEntry=new FilesModel({userId:UserId, files:processedFiles,TotalAmount:totalAmount,TotalSheets:totalNumberOfSheets});
+    await newEntry.save();
+    console.log("new file entry file creted for this user")
+      
+    StoresAllFilesOfUser(UserId,processedFiles)
     res.status(200).json({
       message: "Files processed successfully",
       totalSheets: totalNumberOfSheets,
       totalAmount: totalAmount,
-      files: processedFiles, // Send temp paths to frontend
-      errors, // Send list of files that had issues
+      files: processedFiles,
+      errors, 
     });
 
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    res.status(500).json({ message: "Internal server error", error});
   }
 }
 
@@ -133,4 +155,19 @@ async function countNumberOfPages(filePath: string, side: string, papersize: num
 function countAmount(numberOfSheets: number, colorMode: string, numberOfCopies: number): number {
   const costPerSheet = colorMode === "color" ? 5 : 1;
   return numberOfSheets * costPerSheet * numberOfCopies;
+}
+
+async function StoresAllFilesOfUser(userId: string, processedFiles:any[]){
+  const existingEntry=await UserfilesModel.findOne({userId})
+  console.log(existingEntry);
+  if(existingEntry){
+    existingEntry.files.push(...processedFiles);
+    await existingEntry.save();
+    console.log("Files appended to existing entry");
+  }else{
+    const newEntry=new UserfilesModel({userId,files:processedFiles});
+    console.log(newEntry);
+    await newEntry.save();;
+    console.log("new file Entry created");
+  }
 }

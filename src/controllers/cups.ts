@@ -1,18 +1,18 @@
 import { exec } from 'child_process';
 import fs from 'fs';
+import { UserModel } from '../db';
 
 type PrintOptions = {
   copies: number;
-  colorMode: string; // 'color' or 'bw'
-  duplex: string;    // 'single' or 'double'
-  paperSize: number; // 'A4', 'Letter', etc
+  colorMode: string; 
+  duplex: string;    
+  paperSize: number; 
 };
 
 // Universal CUPS printer name (configured in CUPS admin)
-const PRINTER_NAME = 'epson'; 
+const PRINTER_NAME = 'hacfy'; 
 
 export async function printFile(filePath: string, options: PrintOptions): Promise<string> {
-  console.log("afgdgvdav")
   return new Promise((resolve, reject) => {
     // Build CUPS command flags from options
     const flags = [
@@ -32,6 +32,10 @@ export async function printFile(filePath: string, options: PrintOptions): Promis
       // Extract CUPS job ID from stdout
       const jobId = stdout.match(/request id is (\S+)/)?.[1] || '';
       resolve(jobId);
+
+      // try{
+      //   const newentry=new UserModel({})
+      // }
       
       // Cleanup file after printing
       fs.unlink(filePath, (err) => {

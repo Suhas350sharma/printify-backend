@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FilesModel = exports.AdminModel = exports.UserModel = void 0;
+exports.UserfilesModel = exports.FilesModel = exports.AdminModel = exports.UserModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const ObjectId = mongoose_1.default.Types.ObjectId;
 const config_1 = require("./config");
@@ -53,20 +53,38 @@ const adminSchema = new mongoose_1.Schema({
     password: { type: String, required: true }
 });
 const filesSchema = new mongoose_1.Schema({
-    userId: { type: ObjectId, ref: "userSchema", required: true },
+    userId: { type: ObjectId, required: true },
     files: [
         {
             filename: { type: String, required: true },
             documentUrl: { type: String, required: true },
             colorMode: { type: String, enum: ["black_white", "color"], required: true },
             side: { type: String, enum: ["single", "double"], required: true },
-            papersize: { type: String, enum: ["A4,", "1/2A4", "1/4A4"], required: true },
+            papersize: { type: String, enum: ["1", "2", "4"], required: true },
             numberofcopies: { type: Number, required: true },
             numberofpages: { type: Number, required: true },
-            totalprice: { type: Number, require: true },
+            price: { type: Number, require: true },
+        }
+    ],
+    TotalAmount: { type: Number, required: true },
+    TotalSheets: { type: Number, required: true }
+});
+const UserfilesSchema = new mongoose_1.Schema({
+    userId: { type: ObjectId, required: true },
+    files: [
+        {
+            filename: { type: String, required: true },
+            documentUrl: { type: String, required: true },
+            colorMode: { type: String, enum: ["black_white", "color"], required: true },
+            side: { type: String, enum: ["single", "double"], required: true },
+            papersize: { type: String, enum: ["1", "2", "4"], required: true },
+            numberofcopies: { type: Number, required: true },
+            numberofpages: { type: Number, required: true },
+            price: { type: Number, require: true },
         }
     ]
 });
 exports.UserModel = (0, mongoose_1.model)("userSchema", userSchema);
 exports.AdminModel = (0, mongoose_1.model)("adminSchema", adminSchema);
 exports.FilesModel = (0, mongoose_1.model)("filesSchema", filesSchema);
+exports.UserfilesModel = (0, mongoose_1.model)("particularuserSchema", UserfilesSchema);

@@ -19,7 +19,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(cors({
-    origin:" http://192.168.18.74:40383 ",
+    origin:"  http://192.168.18.74:3000",
     credentials:true
 }))
 app.use(express.json());
